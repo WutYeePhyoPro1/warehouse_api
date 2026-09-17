@@ -159,12 +159,18 @@ public function store(UserRequest $request)
 
     public function edit($id)
     {
-        $user = User::with('branches')->find($id);
-        $role = $user->roles->first(); 
+        $user = User::with(['branches', 'roles'])->find($id);
+
+        if (! $user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+
+        $role = $user->roles->first();
+
         return response()->json([
             'user' => $user,
             'role_id' => $role ? $role->id : null,
-            'branch_ids' => $user->branches->pluck('id'),
+            'branch_ids' => $user->branches->pluck('id')->values(),
         ]);
     }
 

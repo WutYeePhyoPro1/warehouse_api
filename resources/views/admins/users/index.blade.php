@@ -37,7 +37,7 @@
                     <div class="col-span-3 sm:col-span-3">
                         <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="text" name="name" id="name"
+                            <input type="text" name="name" id="search_name"
                                 class="block w-full min-w-0 flex-1 rounded-md shadow border-[#1a936f]  focus:border-cyan-700 focus:ring-cyan-700 sm:text-sm" value="{{  Session::get('name')  }}" >
                         </div>
                       
@@ -46,7 +46,7 @@
                         <label for="emp_id" class="block text-sm font-medium text-gray-700">Employee
                             Number</label>
                         <div class="mt-1 flex rounded-md shadow-sm">
-                            <input type="text" name="emp_id" id="emp_id"
+                            <input type="text" name="emp_id" id="search_emp_id"
                                 class="block w-full min-w-0 flex-1 rounded-md shadow border-[#1a936f]  focus:border-cyan-700 focus:ring-cyan-700 sm:text-sm" value="{{ Session::get('emp_id') }}">
                         </div>
                        
@@ -56,7 +56,7 @@
                     <div class="col-span-3 sm:col-span-3">
                         <label for="role" class="block text-sm font-medium text-gray-700">Role</label>
                         <div class="mt-1 flex rounded-md shadow-sm w-full">
-                            <select name="role_id"
+                            <select name="role_id" id="search_role_id"
                                 class="bg-gray-50 border border-[#1a936f] text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
                                 <option value="" disabled selected>Select Role</option>
                                 @foreach ($roles as $role)

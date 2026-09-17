@@ -1327,21 +1327,7 @@ class LocationController extends Controller
             );
         }
 
-        if ($roles->contains('Sale')) {
-            $query->whereRaw("right((string_to_array(location_name, '_'))[1], 1) = 'S'");
-        } elseif ($roles->contains('Warehouse')) {
-            if (! in_array($userBranchIds, [15, 16, 17])) {
-                $query->where(function ($q) {
-                    $q->whereRaw("right((string_to_array(location_name, '_'))[1], 1) = 'W'")
-                        ->orWhereRaw("right((string_to_array(location_name, '_'))[1], 1) = 'D'");
-                });
-            }
-        } elseif (
-            $roles->contains('Branch Manager') ||
-            $roles->contains('Operation Analystis') ||
-            $isLocationApprover
-        ) {
-        } else {
+        if (! $this->applyLocationTypeRoleFilter($query, $roles, $userBranchIds, $isLocationApprover)) {
             return response()->json([
                 'status' => 'success',
                 'data' => [],
@@ -1497,37 +1483,87 @@ class LocationController extends Controller
         ]);
     }
 
+    private function hasFullLocationTypeAccess($roles, bool $isLocationApprover): bool
+    {
+        return $roles->contains('Branch Manager')
+            || $roles->contains('Operation Analystis')
+            || $isLocationApprover;
+    }
+
+    private function allowedLocationTypeSuffixes($roles, $userBranchIds): ?array
+    {
+        $suffixes = [];
+
+        if ($roles->contains('Sale')) {
+            $suffixes[] = 'S';
+        }
+
+        if ($roles->contains('Warehouse')) {
+            if (in_array($userBranchIds, [15, 16, 17], true)) {
+                return null;
+            }
+
+            $suffixes[] = 'W';
+            $suffixes[] = 'D';
+        }
+
+        if ($suffixes === []) {
+            return [];
+        }
+
+        return array_values(array_unique($suffixes));
+    }
+
+    private function applyLocationTypeRoleFilter($query, $roles, $userBranchIds, bool $isLocationApprover): bool
+    {
+        if ($this->hasFullLocationTypeAccess($roles, $isLocationApprover)) {
+            return true;
+        }
+
+        $suffixes = $this->allowedLocationTypeSuffixes($roles, $userBranchIds);
+
+        if ($suffixes === null) {
+            return true;
+        }
+
+        if ($suffixes === []) {
+            return false;
+        }
+
+        $query->where(function ($q) use ($suffixes) {
+            foreach ($suffixes as $suffix) {
+                $q->orWhereRaw("right((string_to_array(location_name, '_'))[1], 1) = ?", [$suffix]);
+            }
+        });
+
+        return true;
+    }
+
     private function locationNameAllowedForRoles(
         string $locationName,
         $roles,
         $userBranchIds,
         bool $isLocationApprover
     ): bool {
+        if ($this->hasFullLocationTypeAccess($roles, $isLocationApprover)) {
+            return true;
+        }
+
+        $suffixes = $this->allowedLocationTypeSuffixes($roles, $userBranchIds);
+
+        if ($suffixes === null) {
+            return true;
+        }
+
+        if ($suffixes === []) {
+            return false;
+        }
+
         $parts = explode('_', $locationName);
         $prefix = $parts[0] ?? '';
         $lastChar = substr($prefix, -1);
 
-        if ($roles->contains('Sale')) {
-            return $lastChar === 'S';
-        }
-
-        if ($roles->contains('Warehouse')) {
-            if (in_array($userBranchIds, [15, 16, 17], true)) {
-                return true;
-            }
-
-            return in_array($lastChar, ['W', 'D'], true);
-        }
-
-        if (
-            $roles->contains('Branch Manager') ||
-            $roles->contains('Operation Analystis') ||
-            $isLocationApprover
-        ) {
-            return true;
-        }
-
-        return false;
+        return in_array($lastChar, $suffixes, true);
     }
 
     private function locationNameMatchesSegmentFilters(string $locationName, Request $request): bool

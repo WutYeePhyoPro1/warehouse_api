@@ -75,7 +75,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pg_master' => [
@@ -90,7 +90,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pg_global' => [
             'driver' => 'pgsql',
@@ -104,7 +104,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos101_pgsql' => [
             'driver' => 'pgsql',
@@ -118,7 +118,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos102_pgsql' => [
@@ -133,7 +133,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos103_pgsql' => [
@@ -148,7 +148,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos104_pgsql' => [
@@ -163,7 +163,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos105_pgsql' => [
@@ -178,7 +178,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos106_pgsql' => [
@@ -193,7 +193,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos107_pgsql' => [
@@ -208,7 +208,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos108_pgsql' => [
@@ -223,7 +223,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
           'pos109_pgsql' => [
@@ -238,7 +238,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos110_pgsql' => [
@@ -253,7 +253,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos112_pgsql' => [
@@ -268,7 +268,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos113_pgsql' => [
@@ -283,7 +283,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos114_pgsql' => [
@@ -298,7 +298,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
             'pos115_pgsql' => [
             'driver' => 'pgsql',
@@ -312,7 +312,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos201_pgsql' => [
             'driver' => 'pgsql',
@@ -326,7 +326,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos202_pgsql' => [
             'driver' => 'pgsql',
@@ -340,7 +340,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos203_pgsql' => [
@@ -355,7 +355,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos205_pgsql' => [
             'driver' => 'pgsql',
@@ -369,7 +369,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos504_pgsql' => [
             'driver' => 'pgsql',
@@ -383,7 +383,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'pos505_pgsql' => [
@@ -398,7 +398,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos509_pgsql' => [
             'driver' => 'pgsql',
@@ -412,7 +412,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos510_pgsql' => [
             'driver' => 'pgsql',
@@ -426,7 +426,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
         'pos511_pgsql' => [
             'driver' => 'pgsql',
@@ -440,7 +440,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'cycan_scan' => [
@@ -455,7 +455,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => env('DB_SSLMODE', 'disable'),
         ],
 
         'sqlsrv' => [

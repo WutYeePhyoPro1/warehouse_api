@@ -1,14 +1,17 @@
 $(document).ready(function() {
     $(document).on('click', '#openModal', function() {
-        $('#formData')[0].reset(); 
+        const form = $('#formData');
+        form[0].reset();
         $('#formId').val('');
-        $('#formMethod').val('POST'); 
-        $('.error-text').empty(); 
+        $('#formMethod').val('POST');
+        form.find('.error-text').empty();
+        form.find('#p_required, #pc_required').show();
         $('#userModal').show();
     });
 
     $(document).on('click', '.editModal', function() {
         let id = $(this).data('id');
+        const form = $('#formData');
         $.ajax({
             type: 'GET',
             url: `/admin/users/${id}/edit`,
@@ -16,19 +19,17 @@ $(document).ready(function() {
             success: function(res) {
                 let user = res.user;
 
-                $('#p_required').remove();
-                $('#pc_required').remove();
+                form.find('#p_required, #pc_required').hide();
 
-                $('#name').val(user.name);
-                $('#email').val(user.email);
-                $('#emp_id').val(user.emp_id);
-                $('#password').val(user.password);
-                $('#password_confirmation').val(user.password);
-                $('select[name="title"]').val(user.title).change();
-                $('select[name="branch_id[]"]').val(res.branch_ids).change();
-                $('select[name="role_id"]').val(res.role_id).change(); // Set the role ID
-                $('select[name="status"]').val(user.status).change();
-                $('.error-text').empty();
+                form.find('#name').val(user.name);
+                form.find('#emp_id').val(user.emp_id);
+                form.find('#password').val('');
+                form.find('#password_confirmation').val('');
+                form.find('select[name="title"]').val(user.title).change();
+                form.find('select[name="branch_id[]"]').val(res.branch_ids).change();
+                form.find('select[name="role_id"]').val(res.role_id).change();
+                form.find('select[name="status"]').val(String(user.status)).change();
+                form.find('.error-text').empty();
                 $('#formId').val(id);
                 $('#formMethod').val('PUT');
                 $('#userModal').show();
