@@ -18,15 +18,18 @@ Route::get('/select2', function () {
 
 Route::get('/', function () {
     return redirect('admins/login');
-
 });
 
-Route::middleware(['auth', 'role:Super-Admin'])->group(function () {
+Route::middleware([
+    'auth',
+    \App\Http\Middleware\EnsureUserIsActive::class,
+    'role:Super-Admin',
+])->group(function () {
     Route::resource('admin/branches', BranchController::class);
     Route::resource('admin/departments', DepartmentController::class);
     Route::resource('admin/positions', PositionController::class);
     Route::resource('admin/roles', RoleController::class);
     Route::resource('admin/permissions', PermissionController::class);
     Route::resource('admin/users', UserController::class);
-    Route::get('user/search', [UserController::class ,'user_search']);
+    Route::get('user/search', [UserController::class, 'user_search']);
 });

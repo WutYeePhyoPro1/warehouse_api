@@ -35,9 +35,9 @@ class UserController extends Controller
     public function __construct(UserRepositoryInterface $repository)
     {
         $this->repository = $repository;
-        $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','store']]);
-        $this->middleware('permission:user-create', ['only' => ['create','store']]);
-        $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'store']]);
+        $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:user-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:user-delete', ['only' => ['destroy']]);
     }
     public function login()
@@ -49,25 +49,30 @@ class UserController extends Controller
     {
         // dd($request->all());
         $data = $request->validate([
-            'employee_id'=>'required',
+            'employee_id' => 'required',
             'password' => 'required',
         ]);
 
         $this->repository->saveLog($data);
         $user = User::where(["emp_id" => $data['employee_id']])->first();
-        if ($user && Hash::check($data['password'], $user->password))
-        {
-            Auth::login($user);
-            return redirect()->route('branches.index');
-        }
-        else{
-            return redirect()->route('admins.login')->with('fails','Wrong Password');
-        }
+        if ($user && Hash::check($data['password'], $user->password)) {
+            if ((int) $user->status !== 1) {
+                return redirect()
+                    ->route('admins.login')
+                    ->with('fails', 'Your account is inactive.');
+            }
 
+            Auth::login($user);
+            $request->session()->regenerate();
+
+            return redirect()->route('branches.index');
+        } else {
+            return redirect()->route('admins.login')->with('fails', 'Wrong Password');
+        }
     }
 
     public function logout()
-{
+    {
         Auth::logout();
 
         return redirect('login');
@@ -76,7 +81,7 @@ class UserController extends Controller
 
     public function index()
     {
-      
+
 
         $users = User::with('branches')->paginate(10);
         $branches = Branch::all();
@@ -89,62 +94,61 @@ class UserController extends Controller
     public function create()
     {
         getRequiredData();
-      
+
         $roles                  = Role::all();
-        return view('admins.users.create',compact('roles'));
+        return view('admins.users.create', compact('roles'));
     }
 
 
-public function store(UserRequest $request)
-{
-    DB::beginTransaction();
+    public function store(UserRequest $request)
+    {
+        DB::beginTransaction();
 
-    try {
-      
-        if (User::where('emp_id', $request->emp_id)->exists()) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Employee ID already exists.'
-            ], 422);
-        }
+        try {
 
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
-        $input['branch_id'] = $request->branch_id[0];
+            if (User::where('emp_id', $request->emp_id)->exists()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Employee ID already exists.'
+                ], 422);
+            }
 
-        $user = User::create($input);
-        $user_id = $user->id;
+            $input = $request->all();
+            $input['password'] = Hash::make($input['password']);
+            $input['branch_id'] = $request->branch_id[0];
 
-        foreach ($request->branch_id as $branch_id) {
-            UserBranch::create([
-                'user_id' => $user_id,
-                'branch_id' => $branch_id
-            ]);
-        }
+            $user = User::create($input);
+            $user_id = $user->id;
 
-        $role = Role::find($request->input('role_id'));
+            foreach ($request->branch_id as $branch_id) {
+                UserBranch::create([
+                    'user_id' => $user_id,
+                    'branch_id' => $branch_id
+                ]);
+            }
 
-        if (!$role) {
+            $role = Role::find($request->input('role_id'));
+
+            if (!$role) {
+                DB::rollBack();
+                return response()->json(['error' => 'Role not found.'], 404);
+            }
+
+            $user->assignRole($role->id);
+
+            DB::commit();
+
+            // return response()->json([
+            //     'success' => true,
+            //     'message' => 'User created and role assigned successfully.'
+            // ]);
+            return response()->json(['success' => 'User created and role assigned successfully.']);
+        } catch (\Exception $e) {
+            Log::debug($e->getMessage());
             DB::rollBack();
-            return response()->json(['error' => 'Role not found.'], 404);
+            return response()->json(['error' => 'Something went wrong'], 500);
         }
-
-        $user->assignRole($role->id);
-
-        DB::commit();
-
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'User created and role assigned successfully.'
-        // ]);
-        return response()->json(['success' => 'User created and role assigned successfully.']);
-
-    } catch (\Exception $e) {
-        Log::debug($e->getMessage());
-        DB::rollBack();
-        return response()->json(['error' => 'Something went wrong'], 500);
     }
-}
 
 
 
@@ -153,14 +157,14 @@ public function store(UserRequest $request)
         $user = User::find($id);
         $branches = UserBranch::where('user_id', $user->id)->with('branch')->get();
         // dd(getAuthUser()->branch_id);
-        return view('admins.users.show',compact('user','branches'));
+        return view('admins.users.show', compact('user', 'branches'));
     }
 
 
     public function edit($id)
     {
         $user = User::with('branches')->find($id);
-        $role = $user->roles->first(); 
+        $role = $user->roles->first();
         return response()->json([
             'user' => $user,
             'role_id' => $role ? $role->id : null,
@@ -187,7 +191,7 @@ public function store(UserRequest $request)
             $user_id = $user->id;
             DB::table('user_branches')->where('user_id', $user_id)->delete();
             $branch_ids = $request->branch_id;
-             $role = Role::find($request->input('role_id'));
+            $role = Role::find($request->input('role_id'));
             // dd($role);
             if (!$role) {
                 DB::rollBack();
@@ -222,13 +226,13 @@ public function store(UserRequest $request)
 
     public function user_delete($id)
     {
-      
-        UserBranch::where('user_id',$id)->delete();
+
+        UserBranch::where('user_id', $id)->delete();
         User::find($id)->delete();
         return response()->json([
             'success' => true,
             'message' => 'Success Deleted user',
-            ]);
+        ]);
     }
 
     // public function get_position($dept_id)
@@ -240,10 +244,9 @@ public function store(UserRequest $request)
 
     public function get_branch_name(Request $request)
     {
-       $branch_ids = collect($request->user_branches)->pluck('branch_id');
+        $branch_ids = collect($request->user_branches)->pluck('branch_id');
 
         return response()->json($branch_ids, 200);
-
     }
 
     public function user_search(Request $request)
@@ -261,16 +264,16 @@ public function store(UserRequest $request)
         $branch_id              = $request->branch_id;
         $name            = $request->name;
 
-        $users                  = $this->search_query($role,$emp_id,$branch_id,$name);
+        $users                  = $this->search_query($role, $emp_id, $branch_id, $name);
 
-        Session::put(['branch_id'=>$branch_id,'role'=>$role,'emp_id'=>$emp_id,'name'=>$name]);
+        Session::put(['branch_id' => $branch_id, 'role' => $role, 'emp_id' => $emp_id, 'name' => $name]);
 
         $users->appends($request->all());
 
-        return view('admins.users.index',compact('users','branches','roles'));
+        return view('admins.users.index', compact('users', 'branches', 'roles'));
     }
 
-    public function search_query($role,$emp_id,$branch_id,$name)
+    public function search_query($role, $emp_id, $branch_id, $name)
     {
         $result                  = User::query();
 
@@ -278,32 +281,28 @@ public function store(UserRequest $request)
             $result = User::whereHas('roles', function ($q) use ($role) {
                 $q->where('id', $role);
             });
-
         }
         if (!empty($emp_id)) {
-            $result         = $result->where('emp_id',$emp_id);
-
+            $result         = $result->where('emp_id', $emp_id);
         }
 
-          if (!empty($name)) {
+        if (!empty($name)) {
 
-            $result         = $result->where('name','ILIKE', '%'.$name.'%');
-
+            $result         = $result->where('name', 'ILIKE', '%' . $name . '%');
         }
         if (!empty($branch_id)) {
-            $user_branch_ids  = UserBranch::where(['branch_id'=>$branch_id])->pluck('user_id');
-            $result         = $result->whereIn('id',$user_branch_ids);
-
+            $user_branch_ids  = UserBranch::where(['branch_id' => $branch_id])->pluck('user_id');
+            $result         = $result->whereIn('id', $user_branch_ids);
         }
-     
 
-        return $result->orderBy('id','desc')->paginate(10);
+
+        return $result->orderBy('id', 'desc')->paginate(10);
     }
 
     public function change_branch()
     {
         $branches = Branch::all();
-        return view('admins.users.change_branch',compact('branches'));
+        return view('admins.users.change_branch', compact('branches'));
     }
 
     public function update_branch(Request $request)
@@ -313,21 +312,20 @@ public function store(UserRequest $request)
         $input = $this->validate($request, [
             'emp_id'            => 'required',
         ]);
-        $user = User::where('emp_id',$request->emp_id)->first();
+        $user = User::where('emp_id', $request->emp_id)->first();
         $old_branches = $user->user_branches()->pluck('branch_id')->toArray();
         $user->user_branches()->delete();
-        foreach($branch_ids as $branch_id)
-        {
+        foreach ($branch_ids as $branch_id) {
             $user_branch                = new UserBranch();
             $user_branch->branch_id     = $branch_id;
             $user_branch->user_id       = $user->id;
             $user_branch->save();
             // dd($user_branch);
-        }   
+        }
         $log                = new ChangeBranchLog();
         $log->emp_id        = $request->emp_id;
-        $log->old_branch_id = implode(",",$old_branches);
-        $log->new_branch_id = implode(",",$branch_ids);
+        $log->old_branch_id = implode(",", $old_branches);
+        $log->new_branch_id = implode(",", $branch_ids);
         $log->updated_by    = getAuthUser()->id;
         $log->ip_address    = request()->ip();
         $log->save();
@@ -339,14 +337,14 @@ public function store(UserRequest $request)
         $data = $this->user_info($emp_id);
         return response()->json($data, 200);
     }
-    public function user_info($emp_id){
-        $user           = User::where('emp_id',$emp_id)->first();
+    public function user_info($emp_id)
+    {
+        $user           = User::where('emp_id', $emp_id)->first();
         $user_branches  = [];
-        foreach($user->user_branches as $u_branch)
-        {
-            array_push($user_branches,$u_branch->branches);
+        foreach ($user->user_branches as $u_branch) {
+            array_push($user_branches, $u_branch->branches);
         }
-        $data           = ['user'=>$user,'user_branches'=>$user_branches];
+        $data           = ['user' => $user, 'user_branches' => $user_branches];
         return $data;
     }
 }

@@ -23,10 +23,10 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        
+
         $userId = $this->route('user');
         return [
-            'title' => 'required|in:Mr,Mrs', 
+            'title' => 'required|in:Mr,Mrs',
             'name' => 'required|string|max:255',
             'emp_id' => [
                 'required',
@@ -37,12 +37,11 @@ class UserRequest extends FormRequest
             'password' => $userId ? 'nullable|string|min:8|confirmed' : 'required|string|min:8|confirmed',
             'password_confirmation' => $userId ? 'nullable' : 'required',
             'branch_id' => 'required|exists:branches,id',
-            'role_id' => 'required','exists:roles,id',
-            'status' => 'required','in:1,0',
+            'role_id' => ['required', 'exists:roles,id'],
+            'status' => ['required', 'in:1,0'],
         ];
-
     }
-    
+
 
     public function messages()
     {

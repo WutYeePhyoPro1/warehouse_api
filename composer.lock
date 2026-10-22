@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "26ad1f05c4c03b4937a66daa4aa529e3",
+    "content-hash": "95a5e44e00c62e67a076011d9a055e06",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -3569,6 +3569,45 @@
                 "source": "https://github.com/antonioribeiro/google2fa/tree/v8.0.3"
             },
             "time": "2024-09-05T11:56:40+00:00"
+        },
+        {
+            "name": "pro1/ums-integration",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:WutYeePhyoPro1/ums-integration.git",
+                "reference": "2d5f5e773cdac61fdc047da8c48e5a9762397373"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WutYeePhyoPro1/ums-integration/zipball/2d5f5e773cdac61fdc047da8c48e5a9762397373",
+                "reference": "2d5f5e773cdac61fdc047da8c48e5a9762397373",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^8.75 || ^9.2 || ^10.0 || ^12.0",
+                "php": "^8.1"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Pro1\\UmsIntegration\\UmsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Pro1\\UmsIntegration\\": "src/"
+                }
+            },
+            "description": "Shared UMS integration for PRO1 systems",
+            "support": {
+                "source": "https://github.com/WutYeePhyoPro1/ums-integration/tree/master",
+                "issues": "https://github.com/WutYeePhyoPro1/ums-integration/issues"
+            },
+            "time": "2026-10-21T15:28:04+00:00"
         },
         {
             "name": "psr/clock",
@@ -9528,12 +9567,14 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "pro1/ums-integration": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3|^8.0"
     },
-    "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
 }

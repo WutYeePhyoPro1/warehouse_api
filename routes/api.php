@@ -23,36 +23,43 @@ use App\Models\StockTracking;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+Route::middleware([
+    'auth:sanctum',
+    \App\Http\Middleware\EnsureUserIsActive::class,
+])->get('/user', function (Request $request) {
     $user = $request->user();
-     return response()->json([
+
+    return response()->json([
         'user' => $user,
         'roles' => $user->getRoleNames(),
     ]);
 });
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth:sanctum'])->group(function (){
-    Route::post('logout',[AuthController::class,'logout']);
-    Route::put('user/branch',[AuthController::class, 'updateBranch']);
-    Route::post('location',[LocationController::class, 'store']);
-    Route::get('location',[LocationController::class, 'index']);
-    Route::get('stock_active',[StockTrackingController::class, 'show']);
-    Route::get('show_all_stock',[StockTrackingController::class, 'showAll']);
-    Route::get('locations',[LocationController::class,'showAll']);
-    Route::post('stock_tracking_in',[StockTrackingController::class, 'store']);
-    Route::get('stock_tracking_in',[StockTrackingController::class, 'stock_in_show']);
-    Route::get('user-branch',[StockTrackingController::class, 'branch']);
+Route::middleware([
+    'auth:sanctum',
+    \App\Http\Middleware\EnsureUserIsActive::class,
+])->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::put('user/branch', [AuthController::class, 'updateBranch']);
+    Route::post('location', [LocationController::class, 'store']);
+    Route::get('location', [LocationController::class, 'index']);
+    Route::get('stock_active', [StockTrackingController::class, 'show']);
+    Route::get('show_all_stock', [StockTrackingController::class, 'showAll']);
+    Route::get('locations', [LocationController::class, 'showAll']);
+    Route::post('stock_tracking_in', [StockTrackingController::class, 'store']);
+    Route::get('stock_tracking_in', [StockTrackingController::class, 'stock_in_show']);
+    Route::get('user-branch', [StockTrackingController::class, 'branch']);
     Route::get('get-product/{pcode}/{branch}', [StockTrackingController::class, 'getPcode']);
-    Route::get('product_name/{pname}', [StockTrackingController::class,'getPname']);
-    Route::get('product/{pcode}/{branch}',[StockTrackingController::class,'getStockPcode']);
-    Route::get('product_name/{pname}/{branch}', [StockTrackingController::class,'getStockPname']);
-    Route::post('stock_tracking_out',[StockTrackingController::class,'statusOutStore']);
-    Route::get('stock_tracking_out', [StockTrackingController::class,'stock_out_show']);
-    Route::post('stock_tracking_transfer',[StockTrackingController::class,'statusTransferStore']);
-    Route::get('stock_tracking_transfer',[StockTrackingController::class, 'stock_transfer_show']);
-    Route::get('detail/{id}',[StockTrackingController::class, 'detail']);
-    Route::get('stock_detail/{id}',[StockTrackingController::class, 'stockDetail']);
-    Route::delete('/deleteStockIn/{id}',[StockTrackingController::class, 'destoryStockIn']);
-    Route::delete('/deleteStockOut/{id}',[StockTrackingController::class, 'destoryStockOut']);
+    Route::get('product_name/{pname}', [StockTrackingController::class, 'getPname']);
+    Route::get('product/{pcode}/{branch}', [StockTrackingController::class, 'getStockPcode']);
+    Route::get('product_name/{pname}/{branch}', [StockTrackingController::class, 'getStockPname']);
+    Route::post('stock_tracking_out', [StockTrackingController::class, 'statusOutStore']);
+    Route::get('stock_tracking_out', [StockTrackingController::class, 'stock_out_show']);
+    Route::post('stock_tracking_transfer', [StockTrackingController::class, 'statusTransferStore']);
+    Route::get('stock_tracking_transfer', [StockTrackingController::class, 'stock_transfer_show']);
+    Route::get('detail/{id}', [StockTrackingController::class, 'detail']);
+    Route::get('stock_detail/{id}', [StockTrackingController::class, 'stockDetail']);
+    Route::delete('/deleteStockIn/{id}', [StockTrackingController::class, 'destoryStockIn']);
+    Route::delete('/deleteStockOut/{id}', [StockTrackingController::class, 'destoryStockOut']);
 });
