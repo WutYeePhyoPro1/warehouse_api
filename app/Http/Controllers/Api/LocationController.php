@@ -14,6 +14,7 @@ use App\Models\LocationHd;
 use App\Models\LocationRequest;
 use App\Models\LocationRequestDocument;
 use App\Models\LocationRequestNotification;
+use App\Models\LocationType;
 use App\Models\StockTracking;
 use App\Models\User;
 use App\Models\UserBranch;
@@ -155,13 +156,11 @@ class LocationController extends Controller
             'side_name' => $side_name
         ]);
         // Create location name
-        // If frontend provides location_type, use it; otherwise fallback to user role.
-        $locationType = $request->input('location_type');
-        $isSale = in_array($locationType, ['Sale', 'S'], true)
-            ? true
-            : (in_array($locationType, ['Warehouse', 'W'], true)
-                ? false
-                : getAuthUser()->getRoleNames()->contains('Sale'));
+        // If frontend provides location_type, use it; otherwise use location_category / role.
+        $isSale = $this->resolveIsSale(
+            $request->input('location_type'),
+            $request->input('location_category')
+        );
 
         if ($isSale) {
             if ($side_name !== '') {
@@ -216,12 +215,10 @@ class LocationController extends Controller
             $side_name = in_array($request->side, ['Natural', 'None'], true) ? '' : $request->side;
         }
 
-        $locationType = $request->input('location_type');
-        $isSale = in_array($locationType, ['Sale', 'S'], true)
-            ? true
-            : (in_array($locationType, ['Warehouse', 'W'], true)
-                ? false
-                : getAuthUser()->getRoleNames()->contains('Sale'));
+        $isSale = $this->resolveIsSale(
+            $request->input('location_type'),
+            $request->input('location_category')
+        );
 
         $locationName = $this->buildLocationName(
             $branch,
@@ -352,12 +349,10 @@ class LocationController extends Controller
                 $side_name = $line['side'];
             }
 
-            $locationType = $line['location_type'] ?? null;
-            $isSale = in_array($locationType, ['Sale', 'S'], true)
-                ? true
-                : (in_array($locationType, ['Warehouse', 'W'], true)
-                    ? false
-                    : $authUser->getRoleNames()->contains('Sale'));
+            $isSale = $this->resolveIsSale(
+                $line['location_type'] ?? null,
+                $line['location_category'] ?? null
+            );
 
             $shortName = $line['branch_short_name'] ?? $branch->branch_short_name;
             $locationName = trim((string) ($line['location_name'] ?? ''));
@@ -670,12 +665,10 @@ class LocationController extends Controller
                 $sideName = $request->side;
             }
 
-            $locationType = $request->input('location_type');
-            $isSale = in_array($locationType, ['Sale', 'S'], true)
-                ? true
-                : (in_array($locationType, ['Warehouse', 'W'], true)
-                    ? false
-                    : ($request->location_category !== 'RG_WAREHOUSE'));
+            $isSale = $this->resolveIsSale(
+                $request->input('location_type'),
+                $request->input('location_category')
+            );
 
             $shortName = $request->branch_short_name ?: $branch->branch_short_name;
             $locationName = $this->buildLocationName(
@@ -1174,6 +1167,42 @@ class LocationController extends Controller
         }
 
         return $locationType ?: 'W';
+    }
+
+    /**
+     * Resolve S vs W:
+     * 1) explicit location_type (Sale/S or Warehouse/W)
+     * 2) location_types.category for location_category code (sale => S, warehouse => W)
+     * 3) user Sale role fallback
+     */
+    private function resolveIsSale(?string $locationType, ?string $locationCategory = null): bool
+    {
+        if (in_array($locationType, ['Sale', 'S'], true)) {
+            return true;
+        }
+
+        if (in_array($locationType, ['Warehouse', 'W'], true)) {
+            return false;
+        }
+
+        if ($locationCategory) {
+            $category = LocationType::where('code', $locationCategory)->value('category');
+
+            if ($category === 'warehouse') {
+                return false;
+            }
+
+            if ($category === 'sale') {
+                return true;
+            }
+
+            // Legacy code kept inactive: treat as warehouse for old requests.
+            if ($locationCategory === 'RG_WAREHOUSE') {
+                return false;
+            }
+        }
+
+        return getAuthUser()->getRoleNames()->contains('Sale');
     }
 
     public function rejectRequest(Request $request, $id)

@@ -11,9 +11,19 @@ use Illuminate\Validation\Rule;
 
 class LocationTypeController extends Controller
 {
+    private const LOCATION_APPROVER_EMP_ID = '000-000167';
+
+    private function canManageLocationTypes(): bool
+    {
+        $user = getAuthUser();
+
+        return $user->hasRole('Operation Analystis')
+            || $user->emp_id === self::LOCATION_APPROVER_EMP_ID;
+    }
+
     private function ensureOperationAnalyst()
     {
-        if (! getAuthUser()->hasRole('Operation Analystis')) {
+        if (! $this->canManageLocationTypes()) {
             abort(response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to manage location types.',
@@ -23,7 +33,9 @@ class LocationTypeController extends Controller
 
     public function index(Request $request)
     {
-        $query = LocationType::query()->orderBy('name');
+        $query = LocationType::query()
+            ->orderBy('sort_order')
+            ->orderBy('name');
 
         if ($request->boolean('active_only')) {
             $query->where('is_active', true);
